@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Irfan Store AI Super Pintar</title>
+<style>
+    body {
+        margin: 0;
+        background: #0d1117;
+        font-family: "Poppins", sans-serif;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .chat-wrapper {
+        width: 90%;
+        max-width: 500px;
+        background: #151b23;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+    .header {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        color: #58a6ff;
+        margin-bottom: 10px;
+    }
+    #chatBox {
+        height: 400px;
+        overflow-y: auto;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .msg {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+    .bot {
+        background: #1f6feb33;
+        border-left: 3px solid #58a6ff;
+    }
+    .user {
+        background: #2ea04333;
+        text-align: right;
+        border-right: 3px solid #2ea043;
+    }
+    .input-area {
+        display: flex;
+        margin-top: 10px;
+    }
+    input {
+        flex: 1;
+        padding: 10px;
+        border-radius: 10px;
+        margin-right: 10px;
+        border: 1px solid #30363d;
+        background: #0d1117;
+        color: white;
+    }
+    button {
+        padding: 10px 15px;
+        background: #238636;
+        border: none;
+        color: white;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+<div class="chat-wrapper">
+    <div class="header">🤖 Irfan Store AI SUPER PINTAR</div>
+
+    <div id="chatBox">
+        <div class="msg bot">
+            Halo member, saya Ai SUPER PINTAR yang di ciptakan oleh <b>Irfan Store</b> untuk membantu anda ☺️  
+            Saya siap menjawab apa pun secara lebih cepat, detail, dan profesional.
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="inputMsg" placeholder="Ketik pesan...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+const Irfan_key = "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";  // GANTI DI SINI
+
+async function sendMessage() {
+    let input = document.getElementById("inputMsg");
+    let msg = input.value.trim();
+    if (msg === "") return;
+
+    let chatBox = document.getElementById("chatBox");
+
+    // tampil pesan user
+    chatBox.innerHTML += `<div class="msg user">${msg}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    input.value = "";
+
+    // loading
+    let loading = document.createElement("div");
+    loading.className = "msg bot";
+    loading.textContent = "🤖 AI sedang berpikir...";
+    chatBox.appendChild(loading);
+
+    // fetch ke OpenAI (mode super pintar)
+    let response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + API_KEY
+        },
+        body: JSON.stringify({
+            model: "gpt-4o-mini",  
+            temperature: 0.7,
+            max_tokens: 500,
+            messages: [
+                { 
+                    role: "system", 
+                    content: "Kamu adalah AI super pintar buatan Irfan Store. Kamu harus menjawab sangat jelas, rapi, detail, ramah, dan profesional. Kamu bisa membantu penjelasan, coding, bisnis, ide, tutorial, dan apa pun. Gunakan bahasa Indonesia yang halus dan mudah dipahami." 
+                },
+                { role: "user", content: msg }
+            ]
+        })
+    });
+
+    let data = await response.json();
+    let botText = data.choices?.[0]?.message?.content || "Terjadi kesalahan.";
+
+    loading.remove();
+
+    // tampilkan balasan AI
+    chatBox.innerHTML += `<div class="msg bot">${botText}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
