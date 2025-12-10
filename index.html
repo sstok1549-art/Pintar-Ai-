@@ -93,9 +93,10 @@
         <button onclick="sendMessage()">Send</button>
     </div>
 </div>
-
+            messages: [
+                {
 <script>
-const API_KEY = "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";  // GANTI DI SINI
+const API_KEY = "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"; // ganti dengan API key kamu
 
 async function sendMessage() {
     let input = document.getElementById("inputMsg");
@@ -104,7 +105,7 @@ async function sendMessage() {
 
     let chatBox = document.getElementById("chatBox");
 
-    // tampil pesan user
+    // tampilkan pesan user
     chatBox.innerHTML += `<div class="msg user">${msg}</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
     input.value = "";
@@ -115,37 +116,36 @@ async function sendMessage() {
     loading.textContent = "🤖 AI sedang berpikir...";
     chatBox.appendChild(loading);
 
-    // fetch ke OpenAI (mode super pintar)
-    let response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + API_KEY
-        },
-        body: JSON.stringify({
-            model: "gpt-4o-mini",  
-            temperature: 0.7,
-            max_tokens: 500,
-            messages: [
-                { 
-                    role: "system", 
-                    content: "Kamu adalah AI super pintar buatan Irfan Store. Kamu harus menjawab sangat jelas, rapi, detail, ramah, dan profesional. Kamu bisa membantu penjelasan, coding, bisnis, ide, tutorial, dan apa pun. Gunakan bahasa Indonesia yang halus dan mudah dipahami." 
-                },
-                { role: "user", content: msg }
-            ]
-        })
-    });
+    try {
+        // API BARU (WAJIB)
+        let response = await fetch("https://api.openai.com/v1/responses", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + API_KEY
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini", 
+                input: msg,
+                max_output_tokens: 300
+            })
+        });
 
-    let data = await response.json();
-    let botText = data.choices?.[0]?.message?.content || "Terjadi kesalahan.";
+        let data = await response.json();
 
-    loading.remove();
+        loading.remove();
 
-    // tampilkan balasan AI
-    chatBox.innerHTML += `<div class="msg bot">${botText}</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
+        if (data.output_text) {
+            chatBox.innerHTML += `<div class="msg bot">${data.output_text}</div>`;
+        } else {
+            chatBox.innerHTML += `<div class="msg bot">Terjadi error atau API Key salah.</div>`;
+        }
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (error) {
+        loading.remove();
+        chatBox.innerHTML += `<div class="msg bot">Error koneksi API.</div>`;
+    }
 }
 </script>
-
-</body>
-</html>
